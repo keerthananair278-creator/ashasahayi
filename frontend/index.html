@@ -1,0 +1,1061 @@
+
+<!DOCTYPE html>
+<html lang="ml" id="html-root">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ആശാ-സഹായി (ASHA-Sahayi Health Portal)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts for Multilingual Support -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manjari:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tealBrand: '#00796b',
+                        tealDark: '#004d40',
+                        tealLight: '#e0f2f1',
+                        accentGreen: '#2e7d32',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Manjari', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', 'Manjari', sans-serif;
+            background-color: #f1f5f9;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col items-center justify-start py-0 sm:py-6">
+
+    <!-- Toast Notification Box -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-y-[-200%] transition-transform duration-300 bg-tealDark text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3">
+        <i id="toast-icon" class="fa-solid fa-circle-info text-teal-300 text-lg"></i>
+        <span id="toast-msg" class="text-xs font-medium">Message</span>
+    </div>
+
+    <!-- Main Container -->
+    <div id="app-container" class="w-full max-w-md bg-white min-h-screen sm:min-h-[850px] sm:rounded-3xl shadow-2xl flex flex-col relative overflow-hidden">
+
+        <!-- App Header -->
+        <header class="bg-tealBrand text-white px-5 py-4 flex items-center justify-between shadow-md z-10">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-white text-lg font-bold">
+                    <i class="fa-solid fa-hand-holding-medical"></i>
+                </div>
+                <div>
+                    <h1 id="hdr-title" class="text-base font-bold tracking-tight">ആശാ-സഹായി</h1>
+                    <p id="hdr-subtitle" class="text-[10px] text-teal-100">ആരോഗ്യ പ്രവർത്തക & പൗര പോർട്ടൽ</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <span id="session-lang-badge" class="text-[10px] bg-white/20 text-white px-2.5 py-1 rounded-full font-semibold">Malayalam</span>
+            </div>
+        </header>
+
+        <!-- Main Viewport Area -->
+        <main class="flex-1 overflow-y-auto p-4 pb-24">
+
+            <!-- STEP 1: PERSISTENT MULTI-LANGUAGE SELECTION -->
+            <div id="view-language" class="fade-in space-y-6 pt-8">
+                <div class="text-center space-y-2">
+                    <div class="w-20 h-20 bg-tealLight text-tealBrand rounded-full flex items-center justify-center mx-auto text-3xl shadow-inner">
+                        <i class="fa-solid fa-language"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800">ഭാഷ തിരഞ്ഞെടുക്കുക / Select Language</h2>
+                    <p class="text-xs text-slate-500">Choose your preferred language for this session (Locked persistently)</p>
+                </div>
+
+                <div class="space-y-3 pt-4">
+                    <button onclick="setSessionLanguage('ml')" class="w-full p-4 bg-tealBrand text-white font-bold rounded-2xl shadow-md hover:bg-tealDark transition flex items-center justify-between">
+                        <span class="text-base">മലയാളം (Malayalam)</span>
+                        <i class="fa-solid fa-circle-check"></i>
+                    </button>
+                    <button onclick="setSessionLanguage('en')" class="w-full p-4 bg-white border border-slate-200 text-slate-700 font-semibold rounded-2xl shadow-sm hover:border-tealBrand transition flex items-center justify-between">
+                        <span class="text-base">English (English)</span>
+                        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                    </button>
+                    <button onclick="setSessionLanguage('hi')" class="w-full p-4 bg-white border border-slate-200 text-slate-700 font-semibold rounded-2xl shadow-sm hover:border-tealBrand transition flex items-center justify-between">
+                        <span class="text-base">हिंदी (Hindi)</span>
+                        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2: MULTI-ROLE LOGIN SELECTION -->
+            <div id="view-role-selection" class="hidden fade-in space-y-6 pt-6">
+                <div class="text-center space-y-2">
+                    <div class="w-20 h-20 bg-tealLight text-tealBrand rounded-full flex items-center justify-center mx-auto text-3xl shadow-inner">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h2 id="txt-role-title" class="text-2xl font-bold text-slate-800">ഉപയോക്തൃ റോൾ തിരഞ്ഞെടുക്കുക</h2>
+                    <p id="txt-role-subtitle" class="text-xs text-slate-500">Select user role to proceed</p>
+                </div>
+
+                <div class="space-y-4 pt-2">
+                    <button onclick="selectRole('asha')" class="w-full p-4 bg-white border-2 border-tealBrand/30 rounded-2xl shadow-sm hover:border-tealBrand transition text-left flex items-center space-x-4 group">
+                        <div class="w-12 h-12 rounded-xl bg-tealLight text-tealBrand flex items-center justify-center text-xl shrink-0 group-hover:bg-tealBrand group-hover:text-white transition">
+                            <i class="fa-solid fa-stethoscope"></i>
+                        </div>
+                        <div>
+                            <h3 id="txt-asha-role-title" class="font-bold text-slate-800 text-base">ആശാ വർക്കർ (ASHA Worker)</h3>
+                            <p id="txt-asha-role-desc" class="text-xs text-slate-500">ഫീൽഡ് സർവേ, വീട്ടുനമ്പർ പരിശോധന, ആധാർ സ്കാൻ, എഐ വിശകലനം.</p>
+                        </div>
+                    </button>
+
+                    <button onclick="selectRole('citizen')" class="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl shadow-sm hover:border-tealBrand transition text-left flex items-center space-x-4 group">
+                        <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xl shrink-0 group-hover:bg-tealBrand group-hover:text-white transition">
+                            <i class="fa-solid fa-house-user"></i>
+                        </div>
+                        <div>
+                            <h3 id="txt-citizen-role-title" class="font-bold text-slate-800 text-base">പൗരൻ / സർവേ വ്യക്തി (Citizen)</h3>
+                            <p id="txt-citizen-role-desc" class="text-xs text-slate-500">വീട്ടുനമ്പർ & പാസ്‌വേഡ് ഉപയോഗിച്ച് ലോഗിൻ ചെയ്ത് വിവരങ്ങൾ കാണുക.</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 2b: CITIZEN SECURE LOGIN SCREEN -->
+            <div id="view-citizen-login" class="hidden fade-in space-y-6 pt-6">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                    <button onclick="backToRoleSelection()" class="text-xs text-tealBrand font-semibold flex items-center space-x-1">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span id="txt-back-role">റോൾ തിരഞ്ഞെടുപ്പിലേക്ക് മടങ്ങുക</span>
+                    </button>
+                    <h3 id="txt-citizen-login-hdr" class="text-xs font-bold uppercase text-slate-600">പൗരൻ ലോഗിൻ</h3>
+                </div>
+
+                <div class="text-center space-y-2">
+                    <div class="w-16 h-16 bg-tealLight text-tealBrand rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
+                        <i class="fa-solid fa-user-lock"></i>
+                    </div>
+                    <h2 id="txt-citizen-login-title" class="text-xl font-bold text-slate-800">വീട്ടുവിവരങ്ങൾ പരിശോധിക്കാൻ ലോഗിൻ ചെയ്യുക</h2>
+                    <p id="txt-citizen-login-hint" class="text-xs text-slate-500">ഡെമോ അക്കൗണ്ട്: വീട്ടുനമ്പർ <strong>101</strong> | പാസ്‌വേഡ് <strong>1234</strong></p>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <div>
+                        <label id="lbl-citizen-house" class="block text-xs font-bold text-slate-700 mb-1">വീട്ടുനമ്പർ (Username) *</label>
+                        <input type="text" id="citizen-login-house" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-tealBrand" placeholder="101">
+                    </div>
+                    <div>
+                        <label id="lbl-citizen-pass" class="block text-xs font-bold text-slate-700 mb-1">പാസ്‌വേഡ് (Password) *</label>
+                        <input type="password" id="citizen-login-pass" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-tealBrand" placeholder="••••">
+                    </div>
+                    <button onclick="handleCitizenAuth()" id="btn-citizen-signin" class="w-full py-3 bg-tealBrand text-white font-bold rounded-xl shadow-md hover:bg-tealDark transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>ലോഗിൻ ചെയ്യുക (Login)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: DASHBOARD (ASHA WORKER OR STREAMLINED CITIZEN) -->
+            <div id="view-dashboard" class="hidden fade-in space-y-5 pt-2">
+                <!-- Role Badge & Logout -->
+                <div class="bg-tealLight/60 p-4 rounded-2xl flex items-center justify-between border border-tealBrand/20">
+                    <div>
+                        <span id="dashboard-role-badge" class="text-xs font-bold uppercase tracking-wider text-tealDark bg-teal-200 px-2.5 py-1 rounded-full">ASHA Worker</span>
+                        <h3 id="dashboard-user-name" class="font-bold text-slate-800 mt-1 text-sm">ഫീൽഡ് മാനേജ്മെന്റ് പോർട്ടൽ</h3>
+                    </div>
+                    <button onclick="logout()" id="btn-logout" class="text-xs text-red-600 hover:text-red-800 font-semibold bg-white px-3 py-1.5 rounded-lg shadow-sm border border-red-100">
+                        <i class="fa-solid fa-right-from-bracket mr-1"></i> ലോഗൗട്ട്
+                    </button>
+                </div>
+
+                <!-- Global House Search (ASHA WORKER ONLY - Completely removed from Citizen view) -->
+                <div id="asha-search-section" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <label id="lbl-house-search" class="block text-xs font-bold text-slate-700 uppercase tracking-wide">വീട്ടുനമ്പർ പരിശോധന / തിരയുക</label>
+                    <div class="relative flex items-center">
+                        <input type="text" id="house-search-input" placeholder="ഉദാ: 101, 45C" class="w-full pl-4 pr-24 py-3 bg-slate-50 border border-slate-300 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-tealBrand focus:bg-white transition">
+                        <div class="absolute right-2 flex items-center space-x-1">
+                            <button onclick="startVoiceSearch()" type="button" class="w-9 h-9 bg-slate-200 text-slate-700 hover:bg-tealBrand hover:text-white rounded-lg flex items-center justify-center transition" title="Voice Search">
+                                <i class="fa-solid fa-microphone text-xs"></i>
+                            </button>
+                            <button onclick="searchHouse()" type="button" class="w-9 h-9 bg-tealBrand text-white hover:bg-tealDark rounded-lg flex items-center justify-center transition" title="Search">
+                                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Validation / Status Feedback Box -->
+                    <div id="search-feedback" class="hidden p-3 rounded-xl text-xs font-medium"></div>
+                </div>
+
+                <!-- Active House Details Container (Includes Interactive Task/Alert Completion Checkbox) -->
+                <div id="house-details-card" class="hidden bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <!-- Ward Preset List (ASHA Worker View) -->
+                <div id="asha-ward-list-box" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 id="lbl-ward-preset" class="text-xs font-bold text-slate-700 uppercase tracking-wide">വാർഡിലെ പ്രധാന വീടുകൾ (ഡെമോ)</h4>
+                        <span class="text-[10px] bg-tealLight text-tealDark px-2 py-0.5 rounded font-semibold">3 Houses</span>
+                    </div>
+                    <div id="ward-preset-list" class="space-y-2">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 4: REGISTRATION / EDIT HOUSEHOLD FORM (ASHA ROLE) -->
+            <div id="view-form" class="hidden fade-in space-y-4 pt-2">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                    <button onclick="backToDashboard()" class="text-xs text-tealBrand font-semibold flex items-center space-x-1">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span id="txt-back-dash">ഡാഷ്‌ബോർഡിലേക്ക് മടങ്ങുക</span>
+                    </button>
+                    <h3 id="form-mode-title" class="text-xs font-bold uppercase text-slate-600">പുതിയ വീട് രജിസ്ട്രേഷൻ</h3>
+                </div>
+
+                <!-- House Information Card -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <h4 id="lbl-house-info" class="text-xs font-bold text-tealBrand uppercase">വീടിന്റെ വിവരങ്ങൾ</h4>
+                    <div>
+                        <label id="lbl-reg-house-no" class="block text-xs font-medium text-slate-600 mb-1">വീട്ടുനമ്പർ *</label>
+                        <input type="text" id="reg-house-no" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-tealBrand" placeholder="101">
+                    </div>
+                    <div>
+                        <label id="lbl-reg-house-name" class="block text-xs font-medium text-slate-600 mb-1">വീട്ടുപേര് / സ്ഥലപ്പേര് *</label>
+                        <input type="text" id="reg-house-name" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-tealBrand" placeholder="ആനന്ദ ഭവൻ">
+                    </div>
+                    <div>
+                        <label id="lbl-reg-member-count" class="block text-xs font-medium text-slate-600 mb-1">കുടുംബാംഗങ്ങളുടെ എണ്ണം *</label>
+                        <input type="number" id="reg-member-count" min="1" max="15" value="2" onchange="generateMemberInputs()" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-tealBrand">
+                    </div>
+                    <div>
+                        <label id="lbl-reg-password" class="block text-xs font-medium text-slate-600 mb-1">പൗരൻ ലോഗിൻ പാസ്‌വേഡ് *</label>
+                        <input type="text" id="reg-house-pass" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-tealBrand" placeholder="1234">
+                    </div>
+                </div>
+
+                <!-- Dynamic Member Inputs & Aadhaar Scan -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 id="lbl-reg-members-hdr" class="text-xs font-bold text-tealBrand uppercase">അംഗങ്ങളുടെ വിവരങ്ങൾ & ആധാർ സ്കാൻ</h4>
+                        <!-- Dedicated Aadhaar Scan Button (replaces file upload) -->
+                        <button type="button" onclick="triggerAadhaarScan()" class="px-3 py-1.5 bg-teal-50 border border-tealBrand/30 text-tealBrand text-xs font-semibold rounded-xl hover:bg-tealLight transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-id-card"></i>
+                            <span id="btn-scan-aadhaar">അധാർ കാർഡ് സ്കാൻ ചെയ്യുക</span>
+                        </button>
+                    </div>
+
+                    <div id="dynamic-members-container" class="space-y-4 pt-2">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Data Entry Flexibility: Voice or Keyboard -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 id="lbl-health-notes" class="text-xs font-bold text-tealBrand uppercase">ആരോഗ്യ കുറിപ്പുകൾ & വാക്സിൻ വിവരങ്ങൾ</h4>
+                        <button type="button" onclick="startVoiceToText()" class="px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 text-xs font-semibold rounded-lg hover:bg-amber-100 transition flex items-center space-x-1">
+                            <i class="fa-solid fa-microphone"></i>
+                            <span id="btn-voice-type">സംസാരിച്ച് ടൈപ്പ് ചെയ്യുക</span>
+                        </button>
+                    </div>
+                    <textarea id="reg-notes" rows="3" class="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:border-tealBrand" placeholder="വാക്സിൻ സ്റ്റാറ്റസ്, വിട്ടുമാറാത്ത രോഗങ്ങൾ തുടങ്ങിയ വിവരങ്ങൾ ഇവിടെ ടൈപ്പ് ചെയ്യാം..."></textarea>
+                </div>
+
+                <!-- Explicit Save Button -->
+                <button type="button" onclick="saveHouseholdEntry()" class="w-full py-3.5 bg-accentGreen text-white font-bold rounded-xl shadow-lg hover:bg-emerald-800 transition flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    <span id="btn-save-entry">സേവ് ചെയ്യുക (Save)</span>
+                </button>
+            </div>
+
+            <!-- STEP 5: AI ANALYSIS & SUMMARY VIEW -->
+            <div id="view-ai-summary" class="hidden fade-in space-y-4 pt-2">
+                <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                    <button onclick="backToDashboard()" class="text-xs text-tealBrand font-semibold flex items-center space-x-1">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span id="txt-back-dash-2">ഡാഷ്‌ബോർഡിലേക്ക് മടങ്ങുക</span>
+                    </button>
+                    <h3 id="txt-ai-hdr" class="text-xs font-bold uppercase text-slate-600">എഐ വിശകലനം & സംഗ്രഹം</h3>
+                </div>
+
+                <div class="bg-gradient-to-br from-teal-900 to-tealBrand text-white p-5 rounded-2xl shadow-lg space-y-3">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center text-teal-200 text-lg">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h4 id="ai-card-title" class="font-bold text-sm">ഓട്ടോമേറ്റഡ് ക്ലിനിക്കൽ എഐ വിശകലനം</h4>
+                            <p id="ai-card-subtitle" class="text-xs text-teal-100">ഫീൽഡ് നോട്ടുകളെ അടിസ്ഥാനമാക്കി തയ്യാറാക്കിയത്</p>
+                        </div>
+                    </div>
+                    <div id="ai-report-content" class="bg-white/10 p-3.5 rounded-xl text-xs leading-relaxed space-y-2 border border-white/20">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Download Summary Button -->
+                <div class="grid grid-cols-1 pt-2">
+                    <button onclick="downloadSummaryReport()" class="py-3.5 px-4 bg-tealBrand text-white font-semibold rounded-xl text-xs shadow-md hover:bg-tealDark transition flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-download"></i>
+                        <span id="btn-download-summary">സംഗ്രഹം ഡൗൺലോഡ് ചെയ്യുക (Download Summary)</span>
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="absolute bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-3 flex items-center justify-around shadow-lg z-20">
+            <button onclick="backToDashboard()" class="flex flex-col items-center text-tealBrand space-y-1 focus:outline-none">
+                <i class="fa-solid fa-house text-lg"></i>
+                <span id="nav-home" class="text-[10px] font-semibold">മുഖ്യപേജ്</span>
+            </button>
+            <button onclick="navigateNotesTab()" class="flex flex-col items-center text-slate-400 hover:text-tealBrand space-y-1 focus:outline-none">
+                <i class="fa-solid fa-brain text-lg"></i>
+                <span id="nav-ai" class="text-[10px] font-semibold">എഐ വിശകലനം</span>
+            </button>
+            <button onclick="showHelpModal()" class="flex flex-col items-center text-slate-400 hover:text-tealBrand space-y-1 focus:outline-none">
+                <i class="fa-solid fa-circle-question text-lg"></i>
+                <span id="nav-help" class="text-[10px] font-semibold">സഹായം</span>
+            </button>
+        </nav>
+
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Session Language State (Persistent across session)
+        let sessionLang = 'ml';
+        let currentRole = null; // 'asha' or 'citizen'
+        let loggedInCitizenHouse = null;
+        let activeHouseData = null;
+
+        // Translation Dictionary
+        const translations = {
+            ml: {
+                hdrTitle: "ആശാ-സഹായി",
+                hdrSubtitle: "ആരോഗ്യ പ്രവർത്തക & പൗര പോർട്ടൽ",
+                roleTitle: "ഉപയോക്തൃ റോൾ തിരഞ്ഞെടുക്കുക",
+                roleSubtitle: "നിങ്ങളുടെ ആവശ്യാനുസരണം റോൾ തിരഞ്ഞെടുക്കുക",
+                ashaRoleTitle: "ആശാ വർക്കർ (ASHA Worker)",
+                ashaRoleDesc: "ഫീൽഡ് സർവേ, വീട്ടുനമ്പർ പരിശോധന, ആധാർ സ്കാൻ, എഐ വിശകലനം.",
+                citizenRoleTitle: "പൗരൻ / സർവേ വ്യക്തി (Citizen)",
+                citizenRoleDesc: "വീട്ടുനമ്പർ & പാസ്‌വേഡ് ഉപയോഗിച്ച് ലോഗിൻ ചെയ്ത് വിവരങ്ങൾ കാണുക.",
+                backRole: "റോൾ തിരഞ്ഞെടുപ്പിലേക്ക് മടങ്ങുക",
+                citizenLoginHdr: "പൗരൻ ലോഗിൻ",
+                citizenLoginTitle: "വീട്ടുവിവരങ്ങൾ പരിശോധിക്കാൻ ലോഗിൻ ചെയ്യുക",
+                citizenLoginHint: "ഡെമോ അക്കൗണ്ട്: വീട്ടുനമ്പർ 101 | പാസ്‌വേഡ് 1234",
+                lblCitizenHouse: "വീട്ടുനമ്പർ (Username) *",
+                lblCitizenPass: "പാസ്‌വേഡ് (Password) *",
+                btnCitizenSignin: "ലോഗിൻ ചെയ്യുക (Login)",
+                roleBadgeAsha: "ആശാ വർക്കർ (ASHA Worker)",
+                roleBadgeCitizen: "പൗരൻ / സർവേ വ്യക്തി (Citizen)",
+                logout: "ലോഗൗട്ട്",
+                houseSearchLbl: "വീട്ടുനമ്പർ പരിശോധന / തിരയുക",
+                wardPresetLbl: "വാർഡിലെ പ്രധാന വീടുകൾ (ഡെമോ)",
+                backDash: "ഡാഷ്‌ബോർഡിലേക്ക് മടങ്ങുക",
+                formModeNew: "പുതിയ വീട് രജിസ്ട്രേഷൻ",
+                houseInfo: "വീടിന്റെ വിവരങ്ങൾ",
+                regHouseNo: "വീട്ടുനമ്പർ *",
+                regHouseName: "വീട്ടുപേര് / സ്ഥലപ്പേര് *",
+                regMemberCount: "കുടുംബാംഗങ്ങളുടെ എണ്ണം *",
+                regPass: "പൗരൻ ലോഗിൻ പാസ്‌വേഡ് *",
+                membersHdr: "അംഗങ്ങളുടെ വിവരങ്ങൾ & ആധാർ സ്കാൻ",
+                scanAadhaar: "അധാർ കാർഡ് സ്കാൻ ചെയ്യുക",
+                healthNotesHdr: "ആരോഗ്യ കുറിപ്പുകൾ & വാക്സിൻ വിവരങ്ങൾ",
+                voiceType: "സംസാരിച്ച് ടൈപ്പ് ചെയ്യുക",
+                saveEntry: "സേവ് ചെയ്യുക (Save)",
+                aiHdr: "എഐ വിശകലനം & സംഗ്രഹം",
+                aiTitle: "ഓട്ടോമേറ്റഡ് ക്ലിനിക്കൽ എഐ വിശകലനം",
+                aiSubtitle: "ഫീൽഡ് നോട്ടുകളെ അടിസ്ഥാനമാക്കി തയ്യാറാക്കിയത്",
+                downloadSummary: "സംഗ്രഹം ഡൗൺലോഡ് ചെയ്യുക (Download Summary)",
+                navHome: "മുഖ്യപേജ്",
+                navAi: "എഐ വിശകലനം",
+                navHelp: "സഹായം",
+                taskCompletedBtn: "അതെ, ഞാൻ ഈ ടാസ്ക് പൂർത്തിയാക്കി (Task Completed)",
+                taskCompletedBadge: "✓ വാക്സിനേഷൻ നടപടി പൂർത്തിയായി"
+            },
+            en: {
+                hdrTitle: "ASHA-Sahayi",
+                hdrSubtitle: "Health Worker & Citizen Portal",
+                roleTitle: "Select User Role",
+                roleSubtitle: "Choose your role to proceed",
+                ashaRoleTitle: "ASHA Worker",
+                ashaRoleDesc: "Field survey, house lookup, Aadhaar scan, AI analysis.",
+                citizenRoleTitle: "Citizen / Survey Resident",
+                citizenRoleDesc: "Log in with House Number & password to view survey data.",
+                backRole: "Back to Role Selection",
+                citizenLoginHdr: "Citizen Login",
+                citizenLoginTitle: "Secure Resident Authentication",
+                citizenLoginHint: "Demo Account: House No 101 | Password 1234",
+                lblCitizenHouse: "House Number (Username) *",
+                lblCitizenPass: "Password *",
+                btnCitizenSignin: "Login",
+                roleBadgeAsha: "ASHA Worker",
+                roleBadgeCitizen: "Citizen / Resident",
+                logout: "Logout",
+                houseSearchLbl: "Household Number Lookup / Search",
+                wardPresetLbl: "Ward Key Households (Demo)",
+                backDash: "Back to Dashboard",
+                formModeNew: "New Household Registration",
+                houseInfo: "Household Details",
+                regHouseNo: "House Number *",
+                regHouseName: "House Name / Location *",
+                regMemberCount: "Number of Family Members *",
+                regPass: "Citizen Login Password *",
+                membersHdr: "Member Details & Aadhaar Scan",
+                scanAadhaar: "Scan Aadhaar Card",
+                healthNotesHdr: "Health Notes & Vaccine Status",
+                voiceType: "Voice-to-Text",
+                saveEntry: "Save Entry",
+                aiHdr: "AI Analysis & Summary",
+                aiTitle: "Automated Clinical AI Analysis",
+                aiSubtitle: "Generated based on field survey notes",
+                downloadSummary: "Download Summary Report",
+                navHome: "Home",
+                navAi: "AI Analysis",
+                navHelp: "Help",
+                taskCompletedBtn: "Yes, I have completed this task",
+                taskCompletedBadge: "✓ Vaccination Task Completed"
+            },
+            hi: {
+                hdrTitle: "आशा-सहायक",
+                hdrSubtitle: "स्वास्थ्य कार्यकर्ता और नागरिक पोर्टल",
+                roleTitle: "उपयोगकर्ता भूमिका चुनें",
+                roleSubtitle: "आगे बढ़ने के लिए अपनी भूमिका चुनें",
+                ashaRoleTitle: "आशा वर्कर (ASHA Worker)",
+                ashaRoleDesc: "फ़ील्ड सर्वे, घर की जाँच, आधार स्कैन, एआई विश्लेषण।",
+                citizenRoleTitle: "नागरिक / सर्वेक्षण निवासी (Citizen)",
+                citizenRoleDesc: "हाउस नंबर और पासवर्ड से लॉगिन कर अपना स्वास्थ्य डेटा देखें।",
+                backRole: "भूमिका चयन पर वापस जाएं",
+                citizenLoginHdr: "नागरिक लॉगिन",
+                citizenLoginTitle: "सुरक्षित निवासी प्रमाणीकरण",
+                citizenLoginHint: "डेमो खाता: हाउस नंबर 101 | पासवर्ड 1234",
+                lblCitizenHouse: "हाउस नंबर (यूजरनेम) *",
+                lblCitizenPass: "पासवर्ड *",
+                btnCitizenSignin: "लॉगिन करें",
+                roleBadgeAsha: "आशा वर्कर",
+                roleBadgeCitizen: "नागरिक / निवासी",
+                logout: "लॉग आउट",
+                houseSearchLbl: "घर नंबर खोज / सत्यापन",
+                wardPresetLbl: "वार्ड के प्रमुख घर (डेमो)",
+                backDash: "डैशबोर्ड पर वापस जाएं",
+                formModeNew: "नया घर पंजीकरण",
+                houseInfo: "घर का विवरण",
+                regHouseNo: "हाउस नंबर *",
+                regHouseName: "घर का नाम / स्थान *",
+                regMemberCount: "परिवार के सदस्यों की संख्या *",
+                regPass: "नागरिक लॉगिन पासवर्ड *",
+                membersHdr: "सदस्य विवरण और आधार स्कैन",
+                scanAadhaar: "आधार कार्ड स्कैन करें",
+                healthNotesHdr: "स्वास्थ्य नोट्स और वैक्सीन स्थिति",
+                voiceType: "बोलकर टाइप करें",
+                saveEntry: "सेव करें",
+                aiHdr: "एआई विश्लेषण और सारांश",
+                aiTitle: "स्वचालित临床 एआई विश्लेषण",
+                aiSubtitle: "फ़ील्ड नोट्स के आधार पर तैयार",
+                downloadSummary: "सारांश डाउनलोड करें",
+                navHome: "होम",
+                navAi: "एआई विश्लेषण",
+                navHelp: "मदद",
+                taskCompletedBtn: "हाँ, मैंने यह कार्य पूरा कर लिया है",
+                taskCompletedBadge: "✓ टीकाकरण कार्य पूर्ण"
+            }
+        };
+
+        // Mock Ward Database including Demo Vaccine Alert Case (House 101)
+        let wardDatabase = {
+            "101": {
+                houseNo: "101",
+                houseName: "ആനന്ദ ഭവൻ / Anand Bhavan",
+                password: "1234",
+                members: [
+                    { name: "അർജുൻ / Arjun", age: 1, relation: "കുട്ടി / Child", healthStatus: "വാക്സിൻ മുടങ്ങിയിരിക്കുന്നു (Pending: Pentavalent-3 / MMR)" }
+                ],
+                notes: "കുട്ടിക്ക് ഒരു വയസ്സ് പൂർത്തിയായി. പെന്റാവാലന്റ്-3 및 MMR വാക്സിൻ എടുക്കാൻ ബാക്കിയുണ്ട്.",
+                lastUpdated: "2026-06-15",
+                hasVaccineAlert: true,
+                taskCompleted: false
+            },
+            "102": {
+                houseNo: "102",
+                houseName: "ശാന്തി നിവാസ് / Shanti Niwas",
+                password: "5678",
+                members: [
+                    { name: "ഭാർഗവി അമ്മ / Bhargavi", age: 72, relation: "ഗൃഹനാഥ / Head", healthStatus: "പ്രമേഹം / Diabetes" }
+                ],
+                notes: "മുതിർന്ന പൗര, പ്രതിമാസ മരുന്ന് വിതരണം നടത്തുന്നുണ്ട്.",
+                lastUpdated: "2026-06-12",
+                hasVaccineAlert: false,
+                taskCompleted: true
+            },
+            "103": {
+                houseNo: "103",
+                houseName: "ശ്രീനിലയം / Sreenilayam",
+                password: "9012",
+                members: [
+                    { name: "രമ്യ / Ramya", age: 26, relation: "ഭാര്യ / Wife", healthStatus: "ഗർഭിണി / Pregnant (6 months)" }
+                ],
+                notes: "മാതൃ പരിചരണ രജിസ്റ്ററിൽ ഉൾപ്പെടുത്തിയിട്ടുണ്ട്.",
+                lastUpdated: "2026-06-14",
+                hasVaccineAlert: false,
+                taskCompleted: true
+            }
+        };
+
+        // Toast Notification System
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            toastMsg.textContent = message;
+            if (type === 'success') {
+                toastIcon.className = 'fa-solid fa-circle-check text-emerald-300 text-lg';
+            } else if (type === 'error') {
+                toastIcon.className = 'fa-solid fa-triangle-exclamation text-amber-300 text-lg';
+            } else {
+                toastIcon.className = 'fa-solid fa-circle-info text-teal-300 text-lg';
+            }
+
+            toast.style.transform = 'translateY(0)';
+            setTimeout(() => {
+                toast.style.transform = 'translateY(-200%)';
+            }, 3500);
+        }
+
+        // Set Persistent Session Language
+        function setSessionLanguage(lang) {
+            sessionLang = lang;
+            document.getElementById('html-root').setAttribute('lang', lang);
+            
+            const badge = document.getElementById('session-lang-badge');
+            if (lang === 'ml') badge.textContent = 'മലയാളം';
+            else if (lang === 'en') badge.textContent = 'English';
+            else if (lang === 'hi') badge.textContent = 'हिंदी';
+
+            applyTranslations();
+            showToast(lang === 'ml' ? 'ഭാഷ മലയാളമായി ലോക്ക് ചെയ്തു' : (lang === 'hi' ? 'भाषा हिंदी में सेट की गई' : 'Language locked to English'), 'success');
+            
+            document.getElementById('view-language').classList.add('hidden');
+            document.getElementById('view-role-selection').classList.remove('hidden');
+        }
+
+        // Apply translations across UI elements consistently
+        function applyTranslations() {
+            const t = translations[sessionLang];
+            document.getElementById('hdr-title').textContent = t.hdrTitle;
+            document.getElementById('hdr-subtitle').textContent = t.hdrSubtitle;
+            document.getElementById('txt-role-title').textContent = t.roleTitle;
+            document.getElementById('txt-role-subtitle').textContent = t.roleSubtitle;
+            document.getElementById('txt-asha-role-title').textContent = t.ashaRoleTitle;
+            document.getElementById('txt-asha-role-desc').textContent = t.ashaRoleDesc;
+            document.getElementById('txt-citizen-role-title').textContent = t.citizenRoleTitle;
+            document.getElementById('txt-citizen-role-desc').textContent = t.citizenRoleDesc;
+            document.getElementById('txt-back-role').textContent = t.backRole;
+            document.getElementById('txt-citizen-login-hdr').textContent = t.citizenLoginHdr;
+            document.getElementById('txt-citizen-login-title').textContent = t.citizenLoginTitle;
+            document.getElementById('txt-citizen-login-hint').innerHTML = t.citizenLoginHint;
+            document.getElementById('lbl-citizen-house').textContent = t.lblCitizenHouse;
+            document.getElementById('lbl-citizen-pass').textContent = t.lblCitizenPass;
+            document.getElementById('btn-citizen-signin').innerHTML = `<i class="fa-solid fa-right-to-bracket"></i> <span>${t.btnCitizenSignin}</span>`;
+            document.getElementById('btn-logout').innerHTML = `<i class="fa-solid fa-right-from-bracket mr-1"></i> ${t.logout}`;
+            document.getElementById('lbl-house-search').textContent = t.houseSearchLbl;
+            document.getElementById('lbl-ward-preset').textContent = t.wardPresetLbl;
+            document.getElementById('txt-back-dash').textContent = t.backDash;
+            document.getElementById('txt-back-dash-2').textContent = t.backDash;
+            document.getElementById('lbl-house-info').textContent = t.houseInfo;
+            document.getElementById('lbl-reg-house-no').textContent = t.regHouseNo;
+            document.getElementById('lbl-reg-house-name').textContent = t.regHouseName;
+            document.getElementById('lbl-reg-member-count').textContent = t.regMemberCount;
+            document.getElementById('lbl-reg-password').textContent = t.regPass;
+            document.getElementById('lbl-reg-members-hdr').textContent = t.membersHdr;
+            document.getElementById('btn-scan-aadhaar').textContent = t.scanAadhaar;
+            document.getElementById('lbl-health-notes').textContent = t.healthNotesHdr;
+            document.getElementById('btn-voice-type').textContent = t.voiceType;
+            document.getElementById('btn-save-entry').innerHTML = `<i class="fa-solid fa-floppy-disk"></i> <span>${t.saveEntry}</span>`;
+            document.getElementById('txt-ai-hdr').textContent = t.aiHdr;
+            document.getElementById('ai-card-title').textContent = t.aiTitle;
+            document.getElementById('ai-card-subtitle').textContent = t.aiSubtitle;
+            document.getElementById('btn-download-summary').textContent = t.downloadSummary;
+            document.getElementById('nav-home').textContent = t.navHome;
+            document.getElementById('nav-ai').textContent = t.navAi;
+            document.getElementById('nav-help').textContent = t.navHelp;
+        }
+
+        function backToRoleSelection() {
+            document.getElementById('view-citizen-login').classList.add('hidden');
+            document.getElementById('view-role-selection').classList.remove('hidden');
+        }
+
+        // Select Role
+        function selectRole(role) {
+            currentRole = role;
+            if (role === 'asha') {
+                loggedInCitizenHouse = null;
+                transitionToDashboard('asha');
+            } else {
+                document.getElementById('view-role-selection').classList.add('hidden');
+                document.getElementById('view-citizen-login').classList.remove('hidden');
+            }
+        }
+
+        // Citizen Authentication Flow
+        function handleCitizenAuth() {
+            const houseNoInput = document.getElementById('citizen-login-house').value.trim();
+            const passInput = document.getElementById('citizen-login-pass').value.trim();
+
+            if (!houseNoInput || !passInput) {
+                showToast('Please enter House Number and Password', 'error');
+                return;
+            }
+
+            if (wardDatabase[houseNoInput] && wardDatabase[houseNoInput].password === passInput) {
+                loggedInCitizenHouse = houseNoInput;
+                showToast('Citizen Login Successful!', 'success');
+                transitionToDashboard('citizen', houseNoInput);
+            } else {
+                showToast('Invalid House Number or Password!', 'error');
+            }
+        }
+
+        function transitionToDashboard(role, houseNo = null) {
+            document.getElementById('view-role-selection').classList.add('hidden');
+            document.getElementById('view-citizen-login').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.remove('hidden');
+
+            const t = translations[sessionLang];
+            const roleBadge = document.getElementById('dashboard-role-badge');
+            const userNameTitle = document.getElementById('dashboard-user-name');
+            const ashaSearchSection = document.getElementById('asha-search-section');
+            const ashaWardListBox = document.getElementById('asha-ward-list-box');
+
+            if (role === 'asha') {
+                roleBadge.textContent = t.roleBadgeAsha;
+                userNameTitle.textContent = "Field Staff Management Portal";
+                ashaSearchSection.classList.remove('hidden');
+                ashaWardListBox.classList.remove('hidden');
+                renderWardPresetList();
+            } else {
+                roleBadge.textContent = t.roleBadgeCitizen;
+                userNameTitle.textContent = `House No: ${houseNo} (${wardDatabase[houseNo].houseName})`;
+                
+                // Streamlined Citizen Dashboard: Remove global search bar completely
+                ashaSearchSection.classList.add('hidden');
+                ashaWardListBox.classList.add('hidden');
+
+                // Load citizen's household details directly
+                activeHouseData = wardDatabase[houseNo];
+                renderHouseDetails(activeHouseData);
+                document.getElementById('house-details-card').classList.remove('hidden');
+            }
+        }
+
+        function logout() {
+            currentRole = null;
+            loggedInCitizenHouse = null;
+            activeHouseData = null;
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-form').classList.add('hidden');
+            document.getElementById('view-ai-summary').classList.add('hidden');
+            document.getElementById('view-role-selection').classList.remove('hidden');
+            showToast('Logged out successfully', 'info');
+        }
+
+        function navigateNotesTab() {
+            if (!activeHouseData) {
+                showToast('Please view or select a household first', 'error');
+                return;
+            }
+            openAiSummary(activeHouseData);
+        }
+
+        function backToDashboard() {
+            document.getElementById('view-form').classList.add('hidden');
+            document.getElementById('view-ai-summary').classList.add('hidden');
+            document.getElementById('view-dashboard').classList.remove('hidden');
+        }
+
+        function showHelpModal() {
+            showToast('Help: Enter a valid house number to lookup or register new households as an ASHA worker.', 'info');
+        }
+
+        // House Number Lookup & Validation Logic (ASHA Worker)
+        function searchHouse() {
+            const query = document.getElementById('house-search-input').value.trim();
+            const feedback = document.getElementById('search-feedback');
+            const detailsCard = document.getElementById('house-details-card');
+
+            if (!query) {
+                showToast('Please enter a house number', 'error');
+                return;
+            }
+
+            if (wardDatabase[query]) {
+                activeHouseData = wardDatabase[query];
+                feedback.classList.remove('hidden');
+                feedback.className = "p-3 rounded-xl text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200";
+                feedback.innerHTML = `<i class="fa-solid fa-circle-check mr-1 text-emerald-600"></i> House number <strong>${query}</strong> exists in system!`;
+                
+                renderHouseDetails(activeHouseData);
+                detailsCard.classList.remove('hidden');
+            } else {
+                activeHouseData = null;
+                detailsCard.classList.add('hidden');
+                feedback.classList.remove('hidden');
+                feedback.className = "p-3 rounded-xl text-xs font-medium bg-red-50 text-red-800 border border-red-200 flex flex-col space-y-2";
+                feedback.innerHTML = `
+                    <div><i class="fa-solid fa-triangle-exclamation mr-1 text-red-600"></i> Error: House number (${query}) does not exist in the system.</div>
+                    <button onclick="openNewHouseRegistrationWithNo('${query}')" class="mt-1 px-3 py-1.5 bg-tealBrand text-white rounded-lg text-xs font-semibold self-start shadow hover:bg-tealDark transition">
+                        <i class="fa-solid fa-plus mr-1"></i> Register as New House
+                    </button>
+                `;
+            }
+        }
+
+        // Voice search simulation using Web Speech API
+        function startVoiceSearch() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                showToast('Speech recognition not supported in browser.', 'error');
+                return;
+            }
+            try {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.lang = sessionLang === 'ml' ? 'ml-IN' : (sessionLang === 'hi' ? 'hi-IN' : 'en-US');
+                recognition.interimResults = false;
+
+                showToast('Listening for house number...', 'info');
+
+                recognition.onresult = function(event) {
+                    const speechResult = event.results[0][0].transcript;
+                    document.getElementById('house-search-input').value = speechResult.trim();
+                    searchHouse();
+                };
+                recognition.onerror = function() {
+                    showToast('Voice recognition failed.', 'error');
+                };
+                recognition.start();
+            } catch (e) {
+                showToast('Could not start voice search.', 'error');
+            }
+        }
+
+        // Interactive Alert Completion / Task Action handler
+        function toggleTaskCompletion(houseNo) {
+            if (wardDatabase[houseNo]) {
+                wardDatabase[houseNo].taskCompleted = !wardDatabase[houseNo].taskCompleted;
+                activeHouseData = wardDatabase[houseNo];
+                renderHouseDetails(activeHouseData);
+                showToast(wardDatabase[houseNo].taskCompleted ? 'Task marked as completed successfully!' : 'Task status reset.', 'success');
+            }
+        }
+
+        // Render House Details Card (with Interactive Alert Checkbox / Completion Button)
+        function renderHouseDetails(house) {
+            const card = document.getElementById('house-details-card');
+            const t = translations[sessionLang];
+
+            let membersHtml = house.members.map(m => `
+                <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between">
+                    <div>
+                        <h5 class="font-bold text-slate-800 text-xs">${m.name} (${m.age} yrs)</h5>
+                        <p class="text-[11px] text-slate-500">Relation: ${m.relation} | Status: <span class="${m.healthStatus.includes('വാക്സിൻ') || m.healthStatus.includes('Pending') ? 'text-red-600 font-bold' : 'text-tealDark font-semibold'}">${m.healthStatus}</span></p>
+                    </div>
+                </div>
+            `).join('');
+
+            let alertSectionHtml = '';
+            if (house.hasVaccineAlert) {
+                if (house.taskCompleted) {
+                    alertSectionHtml = `
+                        <div class="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl text-xs text-emerald-800 flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i class="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                                <span>${t.taskCompletedBadge}</span>
+                            </div>
+                            <button onclick="toggleTaskCompletion('${house.houseNo}')" class="text-[10px] text-slate-600 underline hover:text-slate-800">Undo</button>
+                        </div>
+                    `;
+                } else {
+                    alertSectionHtml = `
+                        <div class="bg-red-50 border border-red-200 p-4 rounded-xl space-y-3">
+                            <div class="flex items-center space-x-2 text-red-700">
+                                <i class="fa-solid fa-triangle-exclamation text-lg animate-pulse"></i>
+                                <h4 class="font-bold text-xs uppercase">Urgent Vaccine / Health Alert</h4>
+                            </div>
+                            <p class="text-xs text-red-900 leading-relaxed">
+                                Notice: Child immunization gap detected. Pentavalent-3 / MMR vaccine pending.
+                            </p>
+                            <!-- Interactive Alert Completion / Task Action Option -->
+                            <div class="pt-1">
+                                <label class="flex items-center space-x-2.5 cursor-pointer bg-white p-2.5 rounded-lg border border-red-200 shadow-sm hover:bg-red-50 transition">
+                                    <input type="checkbox" onchange="toggleTaskCompletion('${house.houseNo}')" class="w-4 h-4 text-tealBrand rounded border-slate-300 focus:ring-tealBrand">
+                                    <span class="text-xs font-bold text-red-800">${t.taskCompletedBtn}</span>
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            card.innerHTML = `
+                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                    <div>
+                        <span class="text-[10px] bg-tealLight text-tealDark px-2 py-0.5 rounded font-bold">House No: ${house.houseNo}</span>
+                        <h4 class="font-bold text-slate-800 text-sm mt-1">${house.houseName}</h4>
+                    </div>
+                    ${currentRole === 'asha' ? `
+                    <button onclick="openEditHousehold('${house.houseNo}')" class="px-3 py-1.5 bg-teal-50 border border-tealBrand/30 text-tealBrand hover:bg-tealBrand hover:text-white rounded-lg text-xs font-semibold transition flex items-center space-x-1">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>Edit</span>
+                    </button>` : ''}
+                </div>
+                ${alertSectionHtml}
+                <div class="space-y-2">
+                    <h5 class="text-[11px] font-bold text-slate-500 uppercase">Family Members</h5>
+                    ${membersHtml}
+                </div>
+                <div class="pt-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl">
+                    <strong>Notes:</strong> ${house.notes}
+                </div>
+                <div class="pt-2 flex space-x-2">
+                    <button onclick='openAiSummary(${JSON.stringify(house)})' class="flex-1 py-2 bg-tealBrand text-white font-semibold rounded-xl text-xs hover:bg-tealDark transition flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-robot"></i>
+                        <span>AI Analysis & Summary</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        function renderWardPresetList() {
+            const listContainer = document.getElementById('ward-preset-list');
+            listContainer.innerHTML = Object.keys(wardDatabase).map(no => {
+                const h = wardDatabase[no];
+                const alertBadge = h.hasVaccineAlert && !h.taskCompleted ? `<span class="bg-red-100 text-red-700 text-[9px] px-1.5 py-0.5 rounded font-bold ml-1">Alert</span>` : '';
+                return `
+                    <div onclick="document.getElementById('house-search-input').value='${no}'; searchHouse();" class="p-3 bg-slate-50 hover:bg-tealLight/40 border border-slate-200 rounded-xl cursor-pointer transition flex items-center justify-between">
+                        <div>
+                            <span class="font-bold text-xs text-tealDark">${h.houseNo} - ${h.houseName}</span> ${alertBadge}
+                            <p class="text-[10px] text-slate-500">${h.members.length} members | ${h.members[0].healthStatus}</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // New House Registration Flow (ASHA Role)
+        function openNewHouseRegistrationWithNo(houseNo = "") {
+            document.getElementById('form-mode-title').textContent = "New Household Registration";
+            document.getElementById('reg-house-no').value = houseNo;
+            document.getElementById('reg-house-no').disabled = false;
+            document.getElementById('reg-house-name').value = "";
+            document.getElementById('reg-house-pass').value = "1234";
+            document.getElementById('reg-member-count').value = 2;
+            document.getElementById('reg-notes').value = "";
+            generateMemberInputs();
+
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-form').classList.remove('hidden');
+        }
+
+        function openEditHousehold(houseNo) {
+            const house = wardDatabase[houseNo];
+            document.getElementById('form-mode-title').textContent = `Update Household (${houseNo})`;
+            document.getElementById('reg-house-no').value = house.houseNo;
+            document.getElementById('reg-house-no').disabled = true;
+            document.getElementById('reg-house-name').value = house.houseName;
+            document.getElementById('reg-house-pass').value = house.password || "1234";
+            document.getElementById('reg-member-count').value = house.members.length;
+            document.getElementById('reg-notes').value = house.notes;
+            
+            generateMemberInputs();
+
+            house.members.forEach((m, idx) => {
+                const nameInput = document.getElementById(`member-name-${idx}`);
+                const ageInput = document.getElementById(`member-age-${idx}`);
+                const relInput = document.getElementById(`member-rel-${idx}`);
+                const healthInput = document.getElementById(`member-health-${idx}`);
+                if (nameInput) nameInput.value = m.name;
+                if (ageInput) ageInput.value = m.age;
+                if (relInput) relInput.value = m.relation;
+                if (healthInput) healthInput.value = m.healthStatus;
+            });
+
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-form').classList.remove('hidden');
+        }
+
+        function generateMemberInputs() {
+            const count = parseInt(document.getElementById('reg-member-count').value) || 1;
+            const container = document.getElementById('dynamic-members-container');
+            container.innerHTML = '';
+
+            for (let i = 0; i < count; i++) {
+                container.innerHTML += `
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold text-tealDark">Member #${i + 1}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-600 mb-0.5">Name *</label>
+                                <input type="text" id="member-name-${i}" class="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:border-tealBrand" placeholder="Full Name">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-600 mb-0.5">Age *</label>
+                                <input type="number" step="0.5" id="member-age-${i}" class="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:border-tealBrand" placeholder="Age">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] text-slate-600 mb-0.5">Relation</label>
+                                <input type="text" id="member-rel-${i}" class="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:border-tealBrand" placeholder="e.g. Spouse / Child">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-600 mb-0.5">Health / Vaccine Status</label>
+                                <input type="text" id="member-health-${i}" class="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:border-tealBrand" placeholder="Normal / Pending">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Dedicated Aadhaar Card Scanner (Autofills while strictly redacting ID numbers)
+        function triggerAadhaarScan() {
+            showToast('Scanning Aadhaar card... (AI OCR: ID numbers redacted)', 'info');
+            setTimeout(() => {
+                const sampleNames = ["Rahul Kumar", "Priya Sharma", "Anand Raj"];
+                const sampleAges = [30, 26, 2];
+                const rand = Math.floor(Math.random() * sampleNames.length);
+
+                const nameField = document.getElementById('member-name-0');
+                const ageField = document.getElementById('member-age-0');
+                
+                if (nameField) nameField.value = `${sampleNames[rand]} [Aadhaar Redacted]`;
+                if (ageField) ageField.value = sampleAges[rand];
+
+                showToast('Aadhaar scanned successfully! Details autofilled and ID numbers strictly redacted.', 'success');
+            }, 1400);
+        }
+
+        // Voice-to-Text for Notes
+        function startVoiceToText() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                showToast('Speech recognition not supported.', 'error');
+                return;
+            }
+            try {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                recognition.lang = sessionLang === 'ml' ? 'ml-IN' : (sessionLang === 'hi' ? 'hi-IN' : 'en-US');
+                recognition.interimResults = false;
+
+                showToast('Listening for health notes...', 'info');
+
+                recognition.onresult = function(event) {
+                    const speechResult = event.results[0][0].transcript;
+                    const notesArea = document.getElementById('reg-notes');
+                    notesArea.value += (notesArea.value ? ' ' : '') + speechResult;
+                    showToast('Voice text added successfully!', 'success');
+                };
+                recognition.start();
+            } catch (e) {
+                showToast('Voice input error.', 'error');
+            }
+        }
+
+        // Explicit Save Function
+        function saveHouseholdEntry() {
+            const houseNo = document.getElementById('reg-house-no').value.trim();
+            const houseName = document.getElementById('reg-house-name').value.trim();
+            const housePass = document.getElementById('reg-house-pass').value.trim() || "1234";
+            const notes = document.getElementById('reg-notes').value.trim();
+            const count = parseInt(document.getElementById('reg-member-count').value) || 1;
+
+            if (!houseNo || !houseName) {
+                showToast('House Number and House Name are required!', 'error');
+                return;
+            }
+
+            let members = [];
+            let hasAlert = false;
+            for (let i = 0; i < count; i++) {
+                const name = document.getElementById(`member-name-${i}`)?.value || `Member ${i+1}`;
+                const age = parseFloat(document.getElementById(`member-age-${i}`)?.value) || 30;
+                const relation = document.getElementById(`member-rel-${i}`)?.value || "Resident";
+                const healthStatus = document.getElementById(`member-health-${i}`)?.value || "Normal";
+                if (healthStatus.includes('വാക്സിൻ') || healthStatus.includes('Pending') || healthStatus.includes('pending')) {
+                    hasAlert = true;
+                }
+                members.push({ name, age, relation, healthStatus });
+            }
+
+            wardDatabase[houseNo] = {
+                houseNo,
+                houseName,
+                password: housePass,
+                members,
+                notes: notes || "No special notes recorded",
+                lastUpdated: new Date().toISOString().split('T')[0],
+                hasVaccineAlert: hasAlert,
+                taskCompleted: false
+            };
+
+            showToast('Household data saved successfully!', 'success');
+            
+            document.getElementById('house-search-input').value = houseNo;
+            backToDashboard();
+            searchHouse();
+        }
+
+        // AI Summary & Analysis View
+        function openAiSummary(house) {
+            activeHouseData = house;
+            document.getElementById('view-dashboard').classList.add('hidden');
+            document.getElementById('view-form').classList.add('hidden');
+            document.getElementById('view-ai-summary').classList.remove('hidden');
+
+            const reportContainer = document.getElementById('ai-report-content');
+            let memberSummary = house.members.map(m => `• ${m.name} (${m.age} yrs, ${m.relation}): ${m.healthStatus}`).join('<br>');
+
+            reportContainer.innerHTML = `
+                <p><strong>House:</strong> ${house.houseNo} - ${house.houseName}</p>
+                <p><strong>Total Members:</strong> ${house.members.length}</p>
+                <p class="mt-1"><strong>Health Status Overview:</strong><br>${memberSummary}</p>
+                <p class="mt-1"><strong>AI Clinical Assessment:</strong> Household health indicators verified. ${house.hasVaccineAlert && !house.taskCompleted ? '<br><strong class="text-amber-200">Priority: Active immunization task pending.</strong>' : '<br><strong class="text-emerald-200">All immunization milestones up to date.</strong>'}</p>
+                <p class="text-[10px] text-teal-200 mt-2">Report generated on: ${house.lastUpdated}</p>
+            `;
+        }
+
+        // Download Summary Feature
+        function downloadSummaryReport() {
+            if (!activeHouseData) return;
+            const content = `ASHA-Sahayi Health Report\nHouse No: ${activeHouseData.houseNo}\nHouse Name: ${activeHouseData.houseName}\nVaccine Alert Active: ${activeHouseData.hasVaccineAlert && !activeHouseData.taskCompleted ? 'Yes' : 'No'}\nNotes: ${activeHouseData.notes}\nDate: ${activeHouseData.lastUpdated}`;
+            const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ASHA_Report_${activeHouseData.houseNo}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            showToast('Summary report downloaded successfully!', 'success');
+        }
+    </script>
+</body>
+</html>
